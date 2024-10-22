@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mover Ícono y Recoger Monedas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Ícono que vamos a mover -->
+    <div class="icono" id="icono">⭐</div>
+
+    <!-- Contador de monedas recogidas -->
+    <div id="contador">Monedas recogidas: 0</div>
+
+    <!-- Controles para mover el ícono (en forma de cruceta) -->
+    <div class="controls">
+        <button class="up" onclick="mover('up')">↑</button>
+        <button class="left" onclick="mover('left')">←</button>
+        <button class="right" onclick="mover('right')">→</button>
+        <button class="down" onclick="mover('down')">↓</button>
+    </div>
+
+    <script>
+        const icono = document.getElementById('icono');
+        const contadorElement = document.getElementById('contador');
+        let xPos = 0, yPos = 0;
+        let monedas = [];
+        let monedasRecogidas = 0;
+
+        // Crear monedas en posiciones aleatorias
+        function crearMonedas(num) {
+            for (let i = 0; i < num; i++) {
+                const moneda = document.createElement('div');
+                moneda.classList.add('moneda');
+                moneda.textContent = '💰';
+                // Posición aleatoria dentro del área de la ventana
+                const xRandom = Math.random() * (1000) % window.innerWidth;
+                const yRandom = Math.random() * (1000) % window.innerHeight - 300;
+                moneda.style.transform = `translate(${xRandom}px, ${yRandom}px)`;
+                document.body.appendChild(moneda);
+                monedas.push(moneda);
+            }
+        }
+
+        // Función para mover el ícono en la dirección seleccionada
+        function mover(direccion) {
+            const step = 100; // Número de píxeles que se moverá en cada salto
+            switch (direccion) {
+                case 'up':
+                    yPos -= step;
+                    break;
+                case 'down':
+                    yPos += step;
+                    break;
+                case 'left':
+                    xPos -= step;
+                    break;
+                case 'right':
+                    xPos += step;
+                    break;
+            }
+            // Aplicar la nueva posición con animación
+            icono.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            // Verificar si ha recogido alguna moneda
+            recogerMonedas();
+        }
+
+        // Posicionar el ícono en el centro después de que la página esté lista
+        window.onload = function() {
+            xPos = icono.offsetWidth / 2; // Centrar en el ancho
+            yPos = icono.offsetHeight / 2; // Centrar en el alto
+            icono.style.transform = `translate(${xPos}px, ${yPos}px)`;
+
+            // Crear 5 monedas al inicio
+            crearMonedas(5);
+        };
+
+        // Verificar si la estrella ha recogido alguna moneda
+        function recogerMonedas() {
+            monedas.forEach((moneda, index) => {
+                const monedaRect = moneda.getBoundingClientRect();
+                const iconoRect = icono.getBoundingClientRect();
+                // Comprobar si la estrella se solapa con la moneda
+                if (
+                    iconoRect.left < monedaRect.right &&
+                    iconoRect.right > monedaRect.left &&
+                    iconoRect.top < monedaRect.bottom &&
+                    iconoRect.bottom > monedaRect.top
+                ) {
+                    // Eliminar la moneda
+                    moneda.remove();
+                    monedas.splice(index, 1);
+                    monedasRecogidas++;
+                    actualizarContador();
+                }
+            });
+        }
+
+        // Actualizar el contador de monedas recogidas
+        function actualizarContador() {
+            contadorElement.textContent = `Monedas recogidas: ${monedasRecogidas}`;
+        }
+    </script>
+</body>
+</html>
